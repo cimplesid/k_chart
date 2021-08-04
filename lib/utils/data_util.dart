@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:k_chart/utils/number_util.dart';
+import 'package:intl/intl.dart';
 
 import '../entity/index.dart';
 
@@ -254,3 +255,7 @@ class DataUtil {
     }
   }
 }
+
+var niceformatter = NumberFormat.currency(
+  customPattern: "Rs #,##,###",
+);

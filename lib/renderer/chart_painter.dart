@@ -2,6 +2,7 @@ import 'dart:async' show StreamSink;
 
 import 'package:flutter/material.dart';
 import 'package:k_chart/entity/number_format_entity.dart';
+import 'package:k_chart/utils/index.dart';
 import 'package:k_chart/utils/number_util.dart';
 
 import '../entity/info_window_entity.dart';
@@ -221,7 +222,8 @@ class ChartPainter extends BaseChartPainter {
     var index = calculateSelectedX(selectX);
     KLineEntity point = getItem(index);
 
-    TextPainter tp = getTextPainter(point.close, chartColors.crossTextColor);
+    TextPainter tp = getTextPainter(
+        niceformatter.format(point.close), chartColors.crossTextColor);
     double textHeight = tp.height;
     double textWidth = tp.width;
 
