@@ -2,7 +2,31 @@ import 'dart:math';
 
 class NumberUtil {
   static String format(double n) {
-    if (n >= 10000) {
+    if (n >= 1000000000) {
+      n /= 1000000000;
+      return "${n.toStringAsFixed(2)}B";
+    } else if (n >= 1000000) {
+      n /= 1000000;
+      return "${n.toStringAsFixed(2)}M";
+    } else if (n >= 10000) {
+      n /= 1000;
+      return "${n.toStringAsFixed(2)}K";
+    } else {
+      return n.toStringAsFixed(4);
+    }
+  }
+
+  static String formatDevNagari(double n) {
+    if (n >= 1000000000) {
+      n /= 1000000000;
+      return "${n.toStringAsFixed(2)}Arb.";
+    } else if (n >= 10000000) {
+      n /= 10000000;
+      return "${n.toStringAsFixed(2)}Cr.";
+    } else if (n >= 100000) {
+      n /= 100000;
+      return "${n.toStringAsFixed(2)}Lk";
+    } else if (n >= 10000) {
       n /= 1000;
       return "${n.toStringAsFixed(2)}K";
     } else {

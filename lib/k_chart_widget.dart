@@ -48,6 +48,7 @@ class KChartWidget extends StatefulWidget {
   final Function(bool)? isOnDrag;
   final ChartColors chartColors;
   final ChartStyle chartStyle;
+  final NumberFormatStyle numberFormatStyle;
 
   KChartWidget(
     this.datas,
@@ -71,6 +72,7 @@ class KChartWidget extends StatefulWidget {
     this.flingRatio = 0.5,
     this.flingCurve = Curves.decelerate,
     this.isOnDrag,
+    this.numberFormatStyle = NumberFormatStyle.English,
   });
 
   @override
@@ -117,25 +119,23 @@ class _KChartWidgetState extends State<KChartWidget>
       mScrollX = mSelectX = 0.0;
       mScaleX = 1.0;
     }
-    final _painter = ChartPainter(
-      widget.chartStyle,
-      widget.chartColors,
-      datas: widget.datas,
-      scaleX: mScaleX,
-      scrollX: mScrollX,
-      selectX: mSelectX,
-      isLongPass: isLongPress,
-      mainState: widget.mainState,
-      volHidden: widget.volHidden,
-      secondaryState: widget.secondaryState,
-      isLine: widget.isLine,
-      hideGrid: widget.hideGrid,
-      showNowPrice: widget.showNowPrice,
-      sink: mInfoWindowStream?.sink,
-      bgColor: widget.bgColor,
-      fixedLength: widget.fixedLength,
-      maDayList: widget.maDayList,
-    );
+    final _painter = ChartPainter(widget.chartStyle, widget.chartColors,
+        datas: widget.datas,
+        scaleX: mScaleX,
+        scrollX: mScrollX,
+        selectX: mSelectX,
+        isLongPass: isLongPress,
+        mainState: widget.mainState,
+        volHidden: widget.volHidden,
+        secondaryState: widget.secondaryState,
+        isLine: widget.isLine,
+        hideGrid: widget.hideGrid,
+        showNowPrice: widget.showNowPrice,
+        sink: mInfoWindowStream?.sink,
+        bgColor: widget.bgColor,
+        fixedLength: widget.fixedLength,
+        maDayList: widget.maDayList,
+        numberFormatType: widget.numberFormatStyle);
     return GestureDetector(
       onTapUp: (details) {
         if (widget.onSecondaryTap != null &&
@@ -310,8 +310,7 @@ class _KChartWidgetState extends State<KChartWidget>
     Color color = widget.chartColors.infoWindowNormalColor;
     if (info.startsWith("+"))
       color = widget.chartColors.infoWindowUpColor;
-    else if (info.startsWith("-"))
-      color = widget.chartColors.infoWindowDnColor;
+    else if (info.startsWith("-")) color = widget.chartColors.infoWindowDnColor;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
