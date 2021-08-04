@@ -331,8 +331,7 @@ class DepthChartPainter extends CustomPainter {
     }
 
     //画底部
-    TextPainter priceTP =
-        getTextPainter(entity.price.toStringAsFixed(fixedLength!));
+    TextPainter priceTP = getTextPainter(niceformatter.format(entity.price));
     priceTP.layout();
     double left;
     if (dx <= priceTP.width / 2) {
@@ -351,8 +350,7 @@ class DepthChartPainter extends CustomPainter {
         Offset(bottomRect.left + (bottomRect.width - priceTP.width) / 2,
             bottomRect.top + (bottomRect.height - priceTP.height) / 2));
     //画左边
-    TextPainter amountTP =
-        getTextPainter(entity.vol.toStringAsFixed(fixedLength!));
+    TextPainter amountTP = getTextPainter(niceformatter.format(entity.vol));
     amountTP.layout();
     double y = getY(entity.vol);
     double rightRectTop;

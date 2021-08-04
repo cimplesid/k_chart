@@ -269,13 +269,15 @@ class _KChartWidgetState extends State<KChartWidget>
           double upDownPercent = entity.ratio ?? (upDown / entity.open) * 100;
           infos = [
             getDate(entity.time),
-            entity.open.toStringAsFixed(widget.fixedLength),
-            entity.high.toStringAsFixed(widget.fixedLength),
-            entity.low.toStringAsFixed(widget.fixedLength),
-            entity.close.toStringAsFixed(widget.fixedLength),
+            niceformatter.format(entity.open),
+            niceformatter.format(entity.high),
+            niceformatter.format(entity.low),
+            niceformatter.format(entity.close),
             "${upDown > 0 ? "+" : ""}${upDown.toStringAsFixed(widget.fixedLength)}",
             "${upDownPercent > 0 ? "+" : ''}${upDownPercent.toStringAsFixed(2)}%",
-            entity.amount.toInt().toString()
+            widget.numberFormatStyle == NumberFormatStyle.English
+                ? NumberUtil.formatUnits(entity.amount)
+                : NumberUtil.formatUnitsDevNagari(entity.amount) + " units"
           ];
           return Container(
             margin: EdgeInsets.only(
@@ -292,9 +294,7 @@ class _KChartWidgetState extends State<KChartWidget>
               itemExtent: 14.0,
               shrinkWrap: true,
               itemBuilder: (context, index) {
-                final translations = widget.isChinese
-                    ? kChartTranslations['zh_CN']!
-                    : widget.translations.of(context);
+                final translations = widget.translations.of(context);
 
                 return _buildItem(
                   infos[index],

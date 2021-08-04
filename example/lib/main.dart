@@ -111,9 +111,9 @@ class _MyHomePageState extends State<MyHomePage> {
               fixedLength: 2,
               timeFormat: TimeFormat.YEAR_MONTH_DAY,
               translations: kChartTranslations,
-              showNowPrice: _showNowPrice,
+              showNowPrice: true,
               //`isChinese` is Deprecated, Use `translations` instead.
-              isChinese: isChinese,
+              isChinese: false,
               hideGrid: _hideGrid,
               numberFormatStyle: NumberFormatStyle.Devnagari,
               maDayList: [1, 100, 1000],
