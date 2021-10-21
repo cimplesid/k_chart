@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:k_chart/utils/index.dart';
 
 import '../entity/candle_entity.dart';
 import '../k_chart_widget.dart' show MainState;
@@ -233,17 +234,15 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
     double rowSpace = chartRect.height / gridRows;
     for (var i = 0; i <= gridRows; ++i) {
       double value = (gridRows - i) * rowSpace / scaleY + minValue;
-      TextSpan span = TextSpan(text: "${format(value)}", style: textStyle);
+      TextSpan span =
+          TextSpan(text: "${niceformatter.format(value)}", style: textStyle);
       TextPainter tp =
           TextPainter(text: span, textDirection: TextDirection.ltr);
       tp.layout();
       if (i == 0) {
         tp.paint(canvas, Offset(0, topPadding));
       } else {
-        tp.paint(
-            canvas,
-            Offset(0,
-                rowSpace * i - tp.height + topPadding));
+        tp.paint(canvas, Offset(0, rowSpace * i - tp.height + topPadding));
       }
     }
   }

@@ -7,16 +7,19 @@ class VolRenderer extends BaseChartRenderer<VolumeEntity> {
   late double mVolWidth;
   final ChartStyle chartStyle;
   final ChartColors chartColors;
+  final NumberFormatStyle numberFormatType;
 
   VolRenderer(Rect mainRect, double maxValue, double minValue,
-      double topPadding, int fixedLength, this.chartStyle, this.chartColors)
+      double topPadding, int fixedLength, this.chartStyle, this.chartColors,
+      {this.numberFormatType = NumberFormatStyle.English})
       : super(
-            chartRect: mainRect,
-            maxValue: maxValue,
-            minValue: minValue,
-            topPadding: topPadding,
-            fixedLength: fixedLength,
-            gridColor: chartColors.gridColor,) {
+          chartRect: mainRect,
+          maxValue: maxValue,
+          minValue: minValue,
+          topPadding: topPadding,
+          fixedLength: fixedLength,
+          gridColor: chartColors.gridColor,
+        ) {
     mVolWidth = this.chartStyle.volWidth;
   }
 
@@ -54,15 +57,18 @@ class VolRenderer extends BaseChartRenderer<VolumeEntity> {
     TextSpan span = TextSpan(
       children: [
         TextSpan(
-            text: "VOL:${NumberUtil.format(data.vol)}    ",
+            text:
+                "VOL:${numberFormatType == NumberFormatStyle.English ? NumberUtil.format(data.vol) : NumberUtil.formatDevNagari(data.vol)}    ",
             style: getTextStyle(this.chartColors.volColor)),
         if (data.MA5Volume.notNullOrZero)
           TextSpan(
-              text: "MA5:${NumberUtil.format(data.MA5Volume!)}    ",
+              text:
+                  "MA5:${numberFormatType == NumberFormatStyle.English ? NumberUtil.format(data.MA5Volume!) : NumberUtil.formatDevNagari(data.MA5Volume!)}    ",
               style: getTextStyle(this.chartColors.ma5Color)),
         if (data.MA10Volume.notNullOrZero)
           TextSpan(
-              text: "MA10:${NumberUtil.format(data.MA10Volume!)}    ",
+              text:
+                  "MA10:${numberFormatType == NumberFormatStyle.English ? NumberUtil.format(data.MA10Volume!) : NumberUtil.formatDevNagari(data.MA5Volume!)}    ",
               style: getTextStyle(this.chartColors.ma10Color)),
       ],
     );
@@ -73,8 +79,10 @@ class VolRenderer extends BaseChartRenderer<VolumeEntity> {
 
   @override
   void drawRightText(canvas, textStyle, int gridRows) {
-    TextSpan span =
-        TextSpan(text: "${NumberUtil.format(maxValue)}", style: textStyle);
+    TextSpan span = TextSpan(
+        text:
+            "${numberFormatType == NumberFormatStyle.English ? NumberUtil.format(maxValue) : NumberUtil.formatDevNagari(maxValue)}",
+        style: textStyle);
     TextPainter tp = TextPainter(text: span, textDirection: TextDirection.ltr);
     tp.layout();
     tp.paint(

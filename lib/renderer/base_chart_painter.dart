@@ -71,10 +71,10 @@ abstract class BaseChartPainter extends CustomPainter {
     time ~/= 1000;
     //月线
     if (time >= 24 * 60 * 60 * 28)
-      mFormats = [yy, '-', mm];
+      mFormats = [yyyy, '-', mm];
     //日线等
     else if (time >= 24 * 60 * 60)
-      mFormats = [yy, '-', mm, '-', dd];
+      mFormats = [yyyy, '-', mm, '-', dd];
     //小时线等
     else
       mFormats = [mm, '-', dd, ' ', HH, ':', nn];
@@ -97,13 +97,18 @@ abstract class BaseChartPainter extends CustomPainter {
       drawChart(canvas, size);
       drawRightText(canvas);
       drawDate(canvas, size);
-      if (isLongPress == true) drawCrossLineText(canvas, size);
+      if (isLongPress == true) {
+        drawCrossLine(canvas, size);
+        drawCrossLineText(canvas, size);
+      }
       drawText(canvas, datas!.last, 5);
       drawMaxAndMin(canvas);
       drawNowPrice(canvas);
     }
     canvas.restore();
   }
+
+  void drawCrossLine(Canvas canvas, Size size);
 
   void initChartRenderer();
 

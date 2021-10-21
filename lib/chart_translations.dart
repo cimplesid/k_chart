@@ -16,7 +16,7 @@ class ChartTranslations {
     this.close = 'Close',
     this.changeAmount = 'Change',
     this.change = 'Change%',
-    this.amount = 'Amount',
+    this.amount = 'Volume',
   });
 
   String byIndex(int index) {

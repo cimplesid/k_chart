@@ -1,6 +1,8 @@
 import 'dart:async' show StreamSink;
 
 import 'package:flutter/material.dart';
+import 'package:k_chart/entity/number_format_entity.dart';
+import 'package:k_chart/utils/index.dart';
 import 'package:k_chart/utils/number_util.dart';
 
 import '../entity/info_window_entity.dart';
@@ -29,6 +31,7 @@ class ChartPainter extends BaseChartPainter {
   final ChartStyle chartStyle;
   final bool hideGrid;
   final bool showNowPrice;
+  final NumberFormatStyle numberFormatType;
 
   ChartPainter(
     this.chartStyle,
@@ -46,6 +49,7 @@ class ChartPainter extends BaseChartPainter {
     this.hideGrid = false,
     this.showNowPrice = true,
     this.bgColor,
+    this.numberFormatType = NumberFormatStyle.English,
     this.fixedLength = 2,
     this.maDayList = const [5, 10, 20],
   })  : assert(bgColor == null || bgColor.length >= 2),
@@ -75,7 +79,7 @@ class ChartPainter extends BaseChartPainter {
 
   @override
   void initChartRenderer() {
-    if (datas != null) {
+    if (datas != null && datas!.isNotEmpty) {
       var t = datas![0];
       fixedLength =
           NumberUtil.getMaxDecimalLength(t.open, t.close, t.high, t.low);
@@ -95,7 +99,8 @@ class ChartPainter extends BaseChartPainter {
     );
     if (mVolRect != null) {
       mVolRenderer = VolRenderer(mVolRect!, mVolMaxValue, mVolMinValue,
-          mChildPadding, fixedLength, this.chartStyle, this.chartColors);
+          mChildPadding, fixedLength, this.chartStyle, this.chartColors,
+          numberFormatType: this.numberFormatType);
     }
     if (mSecondaryRect != null) {
       mSecondaryRenderer = SecondaryRenderer(
@@ -144,7 +149,7 @@ class ChartPainter extends BaseChartPainter {
 
   @override
   void drawGrid(canvas) {
-    if(!hideGrid) {
+    if (!hideGrid) {
       mMainRenderer.drawGrid(canvas, mGridRows, mGridColumns);
       mVolRenderer?.drawGrid(canvas, mGridRows, mGridColumns);
       mSecondaryRenderer?.drawGrid(canvas, mGridRows, mGridColumns);
@@ -176,7 +181,7 @@ class ChartPainter extends BaseChartPainter {
   @override
   void drawRightText(canvas) {
     var textStyle = getTextStyle(this.chartColors.defaultTextColor);
-    if(!hideGrid) {
+    if (!hideGrid) {
       mMainRenderer.drawRightText(canvas, textStyle, mGridRows);
     }
     mVolRenderer?.drawRightText(canvas, textStyle, mGridRows);
@@ -185,31 +190,29 @@ class ChartPainter extends BaseChartPainter {
 
   @override
   void drawDate(Canvas canvas, Size size) {
+    if (datas == null) return;
+
     double columnSpace = size.width / mGridColumns;
     double startX = getX(mStartIndex) - mPointWidth / 2;
     double stopX = getX(mStopIndex) + mPointWidth / 2;
+    double x = 0.0;
     double y = 0.0;
     for (var i = 0; i <= mGridColumns; ++i) {
       double translateX = xToTranslateX(columnSpace * i);
+
       if (translateX >= startX && translateX <= stopX) {
         int index = indexOfTranslateX(translateX);
+
         if (datas?[index] == null) continue;
         TextPainter tp = getTextPainter(getDate(datas![index].time), null);
         y = size.height - (mBottomPadding - tp.height) / 2 - tp.height;
-        tp.paint(canvas, Offset(columnSpace * i - tp.width / 2, y));
+        x = columnSpace * i - tp.width / 2;
+        // Prevent date text out of canvas
+        if (x < 0) x = 0;
+        if (x > size.width - tp.width) x = size.width - tp.width;
+        tp.paint(canvas, Offset(x, y));
       }
     }
-
-//    double translateX = xToTranslateX(0);
-//    if (translateX >= startX && translateX <= stopX) {
-//      TextPainter tp = getTextPainter(getDate(datas[mStartIndex].id));
-//      tp.paint(canvas, Offset(0, y));
-//    }
-//    translateX = xToTranslateX(size.width);
-//    if (translateX >= startX && translateX <= stopX) {
-//      TextPainter tp = getTextPainter(getDate(datas[mStopIndex].id));
-//      tp.paint(canvas, Offset(size.width - tp.width, y));
-//    }
   }
 
   @override
@@ -217,7 +220,8 @@ class ChartPainter extends BaseChartPainter {
     var index = calculateSelectedX(selectX);
     KLineEntity point = getItem(index);
 
-    TextPainter tp = getTextPainter(point.close, chartColors.crossTextColor);
+    TextPainter tp = getTextPainter(
+        niceformatter.format(point.close), chartColors.crossTextColor);
     double textHeight = tp.height;
     double textWidth = tp.width;
 
@@ -255,7 +259,8 @@ class ChartPainter extends BaseChartPainter {
       tp.paint(canvas, Offset(x + w1 + w2, y - textHeight / 2));
     }
 
-    TextPainter dateTp = getTextPainter(getDate(point.time), chartColors.crossTextColor);
+    TextPainter dateTp =
+        getTextPainter(getDate(point.time), chartColors.crossTextColor);
     textWidth = dateTp.width;
     r = textHeight / 2;
     x = translateXtoX(getX(index));
@@ -303,11 +308,11 @@ class ChartPainter extends BaseChartPainter {
     if (x < mWidth / 2) {
       //画右边
       TextPainter tp = getTextPainter(
-          "── " + mMainLowMinValue.toStringAsFixed(fixedLength), chartColors.minColor);
+          "── " + niceformatter.format(mMainLowMinValue), chartColors.minColor);
       tp.paint(canvas, Offset(x, y - tp.height / 2));
     } else {
       TextPainter tp = getTextPainter(
-          mMainLowMinValue.toStringAsFixed(fixedLength) + " ──", chartColors.minColor);
+          niceformatter.format(mMainLowMinValue) + " ──", chartColors.minColor);
       tp.paint(canvas, Offset(x - tp.width, y - tp.height / 2));
     }
     x = translateXtoX(getX(mMainMaxIndex));
@@ -315,11 +320,13 @@ class ChartPainter extends BaseChartPainter {
     if (x < mWidth / 2) {
       //画右边
       TextPainter tp = getTextPainter(
-          "── " + mMainHighMaxValue.toStringAsFixed(fixedLength), chartColors.maxColor);
+          "── " + niceformatter.format(mMainHighMaxValue),
+          chartColors.maxColor);
       tp.paint(canvas, Offset(x, y - tp.height / 2));
     } else {
       TextPainter tp = getTextPainter(
-          mMainHighMaxValue.toStringAsFixed(fixedLength) + " ──", chartColors.maxColor);
+          niceformatter.format(mMainHighMaxValue) + " ──",
+          chartColors.maxColor);
       tp.paint(canvas, Offset(x - tp.width, y - tp.height / 2));
     }
   }
@@ -356,7 +363,7 @@ class ChartPainter extends BaseChartPainter {
     }
     //再画背景和文本
     TextPainter tp = getTextPainter(
-        value.toStringAsFixed(fixedLength), this.chartColors.nowPriceTextColor);
+        niceformatter.format(value), this.chartColors.nowPriceTextColor);
     double left = 0;
     double top = y - tp.height / 2;
     canvas.drawRect(Rect.fromLTRB(left, top, left + tp.width, top + tp.height),
